@@ -1,19 +1,27 @@
 package com.csierra.demo03072025.controller;
 
-import com.csierra.demo03072025.model.CreateAppointmentRequest;
-import com.csierra.demo03072025.model.CreateAppointmentResponse;
+import com.csierra.demo03072025.controller.model.CreateAppointmentRequest;
+import com.csierra.demo03072025.controller.model.CreateAppointmentResponse;
+import com.csierra.demo03072025.validation.CreateAppointmentRequestValidator;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Service
 class AppointmentController {
+
+    @Inject
+    CreateAppointmentRequestValidator createAppointmentRequestValidator;
 
     //TODO: should be a post, or a put?
     @PostMapping("/appointment/create")
-    ResponseEntity<CreateAppointmentResponse> createAppointment(CreateAppointmentRequest createAppointmentRequest) {
+    ResponseEntity<CreateAppointmentResponse> createAppointment(@RequestBody CreateAppointmentRequest createAppointmentRequest) {
 
         //verify request (officeId, propertyId, employeeId all point to existing resources)
+        createAppointmentRequestValidator.validateRequest(createAppointmentRequest);
 
         //Use user information to search for an existing User matching this information
 
