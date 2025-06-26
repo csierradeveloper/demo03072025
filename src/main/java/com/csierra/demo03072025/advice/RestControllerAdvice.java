@@ -13,17 +13,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 public class RestControllerAdvice extends ResponseEntityExceptionHandler {
 
-    //TODO: fill in with more specific handling
-//    @ExceptionHandler({
-//            IllegalArgumentException.class,
-//            IllegalStateException.class,
-//            RuntimeException.class
-//    })
-//    ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
-//        log.error("Exception: " + ex.toString());
-//        log.error("Request: " + request.toString());
-//        String bodyOfResponse = "Request failed, see logs";
-//        return super.handleExceptionInternal(ex, bodyOfResponse,
-//                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-//    }
+    @ExceptionHandler({
+            IllegalArgumentException.class
+    })
+    ResponseEntity<Object> handleIllegalArgument(RuntimeException ex, WebRequest request) {
+        log.error("Exception: " + ex.toString());
+        log.error("Request: " + request.toString());
+        String bodyOfResponse = "Request failed validation: " + ex.getMessage();
+        return super.handleExceptionInternal(ex, bodyOfResponse,
+                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    //TODO: additional handlers as necessary
 }

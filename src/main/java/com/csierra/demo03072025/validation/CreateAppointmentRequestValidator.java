@@ -7,16 +7,21 @@ import com.csierra.demo03072025.externalclients.office.OfficeServiceClient;
 import com.csierra.demo03072025.externalclients.office.model.Office;
 import com.csierra.demo03072025.externalclients.property.PropertyServiceClient;
 import com.csierra.demo03072025.externalclients.property.model.Property;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 
 @Component
 public class CreateAppointmentRequestValidator {
+    @Autowired
     PropertyServiceClient propertyServiceClient;
+    @Autowired
     EmployeeServiceClient employeeServiceClient;
+    @Autowired
     OfficeServiceClient officeServiceClient;
 
+    //TODO: instead of throwing at first missing field, check all and return a list of errors
     public void validateRequest(CreateAppointmentRequest createAppointmentRequest) {
         validatePropertyExists(createAppointmentRequest.getPropertyId());
         validateEmployeeExists(createAppointmentRequest.getAgentId());
@@ -28,7 +33,7 @@ public class CreateAppointmentRequestValidator {
         Property apptProperty = propertyServiceClient.getProperty(propertyId);
 
         if (apptProperty == null) {
-            //throw
+            throw new IllegalArgumentException("provided propertyId does not correspond to an existing insurable property");
         }
     }
 
@@ -36,7 +41,7 @@ public class CreateAppointmentRequestValidator {
         Employee apptEmployee = employeeServiceClient.getEmployee(employeeId);
 
         if (apptEmployee == null) {
-            //throw
+            throw new IllegalArgumentException("provided employeeId does not correspond to an existing employee to serve as insurance agent");
         }
     }
 
@@ -44,13 +49,13 @@ public class CreateAppointmentRequestValidator {
         Office apptOffice = officeServiceClient.getOffice(officeId);
 
         if (apptOffice == null) {
-            //throw
+            throw new IllegalArgumentException("provided officeId does not correspond to an existing location for the appointment to take place in");
         }
     }
 
     private void validateAppointmentInFuture(OffsetDateTime appointmentTime) {
         if (appointmentTime.isAfter(OffsetDateTime.now())) {
-            //throw
+            throw new IllegalArgumentException("provided appointment time is in the past, cannot create retroactive appointments");
         }
     }
 }
