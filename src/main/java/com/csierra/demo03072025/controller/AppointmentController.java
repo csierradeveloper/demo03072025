@@ -2,6 +2,8 @@ package com.csierra.demo03072025.controller;
 
 import com.csierra.demo03072025.controller.model.CreateAppointmentRequest;
 import com.csierra.demo03072025.controller.model.CreateAppointmentResponse;
+import com.csierra.demo03072025.externalclients.user.UserRestClient;
+import com.csierra.demo03072025.externalclients.user.model.User;
 import com.csierra.demo03072025.validation.CreateAppointmentRequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 class AppointmentController {
 
     @Autowired
-    CreateAppointmentRequestValidator createAppointmentRequestValidator;
+    private CreateAppointmentRequestValidator createAppointmentRequestValidator;
+    @Autowired
+    private UserRestClient userRestClient;
 
     //TODO: should be a post, or a put?
     @PostMapping("/appointment/create")
@@ -23,9 +27,10 @@ class AppointmentController {
 
         createAppointmentRequestValidator.validateRequest(createAppointmentRequest);
 
-        //Use user information to search for an existing User matching this information
-
-        //If no existing User matches this ID, create one
+        User user = userRestClient.findMatchingUser(createAppointmentRequest.getUser());
+        if (user == null) {
+            userRestClient.createUser(createAppointmentRequest.getUser());
+        }
 
         //Search for an appointment matching what you're trying to make. If one already exists in anything other than created state, exit early
 

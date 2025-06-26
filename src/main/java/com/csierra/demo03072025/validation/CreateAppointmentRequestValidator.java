@@ -15,11 +15,11 @@ import java.time.OffsetDateTime;
 @Component
 public class CreateAppointmentRequestValidator {
     @Autowired
-    PropertyServiceClient propertyServiceClient;
+    private PropertyServiceClient propertyServiceClient;
     @Autowired
-    EmployeeServiceClient employeeServiceClient;
+    private EmployeeServiceClient employeeServiceClient;
     @Autowired
-    OfficeServiceClient officeServiceClient;
+    private OfficeServiceClient officeServiceClient;
 
     //TODO: instead of throwing at first missing field, check all and return a list of errors
     public void validateRequest(CreateAppointmentRequest createAppointmentRequest) {
