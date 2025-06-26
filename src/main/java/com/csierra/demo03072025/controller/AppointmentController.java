@@ -1,0 +1,34 @@
+package com.csierra.demo03072025.controller;
+
+import com.csierra.demo03072025.model.CreateAppointmentRequest;
+import com.csierra.demo03072025.model.CreateAppointmentResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+class AppointmentController {
+
+    //TODO: should be a post, or a put?
+    @PostMapping("/appointment/create")
+    ResponseEntity<CreateAppointmentResponse> createAppointment(CreateAppointmentRequest createAppointmentRequest) {
+
+        //verify request (officeId, propertyId, employeeId all point to existing resources)
+
+        //Use user information to search for an existing User matching this information
+
+        //If no existing User matches this ID, create one
+
+        //Search for an appointment matching what you're trying to make. If one already exists in anything other than created state, exit early
+
+        //If no appointment matching desired time/place/customer exists, create one in PENDING
+
+        //Send request to notification service, get response back
+
+        //If response is successful, update appointment status
+
+        //return 200 (or appropriate response code)
+
+        return ResponseEntity.ok().body(CreateAppointmentResponse.builder().build());
+    }
+}
