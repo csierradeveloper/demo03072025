@@ -1,13 +1,16 @@
 package com.csierra.demo03072025.validation;
 
 import com.csierra.demo03072025.controller.model.CreateAppointmentRequest;
-import com.csierra.demo03072025.externalclients.employee.EmployeeServiceClient;
+import com.csierra.demo03072025.externalclients.employee.EmployeeServiceRestClient;
 import com.csierra.demo03072025.externalclients.employee.model.Employee;
-import com.csierra.demo03072025.externalclients.office.OfficeServiceClient;
+import com.csierra.demo03072025.externalclients.office.OfficeServiceRestClient;
 import com.csierra.demo03072025.externalclients.office.model.Office;
-import com.csierra.demo03072025.externalclients.property.PropertyServiceClient;
+import com.csierra.demo03072025.externalclients.property.PropertyServiceRestClient;
 import com.csierra.demo03072025.externalclients.property.model.Property;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -15,11 +18,11 @@ import java.time.OffsetDateTime;
 @Component
 public class CreateAppointmentRequestValidator {
     @Autowired
-    private PropertyServiceClient propertyServiceClient;
+    private PropertyServiceRestClient propertyServiceRestClient;
     @Autowired
-    private EmployeeServiceClient employeeServiceClient;
+    private EmployeeServiceRestClient employeeServiceRestClient;
     @Autowired
-    private OfficeServiceClient officeServiceClient;
+    private OfficeServiceRestClient officeServiceRestClient;
 
     //TODO: instead of throwing at first missing field, check all and return a list of errors
     public void validateRequest(CreateAppointmentRequest createAppointmentRequest) {
@@ -30,25 +33,25 @@ public class CreateAppointmentRequestValidator {
     }
 
     private void validatePropertyExists(String propertyId) {
-        Property apptProperty = propertyServiceClient.getProperty(propertyId);
+        ResponseEntity<Property> propertySearchResponse = propertyServiceRestClient.getProperty(propertyId);
 
-        if (apptProperty == null) {
+        if (!propertySearchResponse.getStatusCode().is2xxSuccessful()) {
             throw new IllegalArgumentException("provided propertyId does not correspond to an existing insurable property");
         }
     }
 
     private void validateEmployeeExists(String employeeId) {
-        Employee apptEmployee = employeeServiceClient.getEmployee(employeeId);
+        ResponseEntity<Employee> employeeSearchResponse = employeeServiceRestClient.getEmployee(employeeId);
 
-        if (apptEmployee == null) {
+        if (!employeeSearchResponse.getStatusCode().is2xxSuccessful()) {
             throw new IllegalArgumentException("provided employeeId does not correspond to an existing employee to serve as insurance agent");
         }
     }
 
     private void validateOfficeExists(String officeId) {
-        Office apptOffice = officeServiceClient.getOffice(officeId);
+        ResponseEntity<Office> officeSearchResponse = officeServiceRestClient.getOffice(officeId);
 
-        if (apptOffice == null) {
+        if (!officeSearchResponse.getStatusCode().is2xxSuccessful()) {
             throw new IllegalArgumentException("provided officeId does not correspond to an existing location for the appointment to take place in");
         }
     }

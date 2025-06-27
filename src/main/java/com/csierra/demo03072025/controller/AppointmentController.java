@@ -1,11 +1,14 @@
 package com.csierra.demo03072025.controller;
 
-import com.csierra.demo03072025.appointment.AppointmentService;
-import com.csierra.demo03072025.appointment.model.Appointment;
-import com.csierra.demo03072025.appointment.model.SearchAppointmentRequest;
+import com.csierra.demo03072025.service.AppointmentService;
+import com.csierra.demo03072025.persistence.Appointment;
+import com.csierra.demo03072025.persistence.AppointmentState;
+import com.csierra.demo03072025.persistence.AppointmentRequest;
 import com.csierra.demo03072025.controller.model.CreateAppointmentRequest;
 import com.csierra.demo03072025.controller.model.CreateAppointmentResponse;
-import com.csierra.demo03072025.externalclients.user.UserRestClient;
+import com.csierra.demo03072025.externalclients.notification.NotificationRestClient;
+import com.csierra.demo03072025.externalclients.notification.model.NotificationResponse;
+import com.csierra.demo03072025.service.UserService;
 import com.csierra.demo03072025.externalclients.user.model.User;
 import com.csierra.demo03072025.validation.CreateAppointmentRequestValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -24,51 +27,45 @@ class AppointmentController {
     @Autowired
     private CreateAppointmentRequestValidator createAppointmentRequestValidator;
     @Autowired
-    private UserRestClient userRestClient;
+    private UserService userService;
     @Autowired
     private AppointmentService appointmentService;
+    @Autowired
+    private NotificationRestClient notificationRestClient;
 
     //TODO: should be a post, or a put?
     @PostMapping("/appointment/create")
     ResponseEntity<CreateAppointmentResponse> createAppointment(@RequestBody CreateAppointmentRequest createAppointmentRequest) {
 
-        //TODO: either remove logs or change most of them to debug
-
-        log.info("Received createAppointmentRequest: " + createAppointmentRequest);
+        log.debug("Received createAppointmentRequest: " + createAppointmentRequest);
 
         createAppointmentRequestValidator.validateRequest(createAppointmentRequest);
 
-        log.info("Request passed validation");
+        log.debug("Request passed validation");
 
-        User user = userRestClient.findMatchingUser(createAppointmentRequest.getUser());
-        if (user == null) {
-            log.info("Creating a user for this appointment");
-            user = userRestClient.createUser(createAppointmentRequest.getUser());
+        User user = userService.getUser(createAppointmentRequest.getUser());
+        log.debug("User for the appointment: " + user);
+
+        Appointment appointment = appointmentService.getAppointment(user, createAppointmentRequest);
+        log.debug("Appointment for this request: " + appointment);
+
+        if (!appointment.getAppointmentState().equals(AppointmentState.CREATED)) {
+            //TODO: exit early with appropriate response
+            log.debug("Appointment already exists and is not in a state to need further notification, returning early");
         }
-        log.info("User for the appointment: " + user);
-
-        //Search for an appointment matching what you're trying to make. If one already exists in anything other than created state, exit early
-        SearchAppointmentRequest searchAppointmentRequest = SearchAppointmentRequest.builder()
-                .userId(user.getId())
-                .propertyId(createAppointmentRequest.getPropertyId())
-                .appointmentTime(createAppointmentRequest.getAppointmentTime())
-                .officeId(createAppointmentRequest.getOfficeId())
-                .agentId(createAppointmentRequest.getAgentId())
-                .build();
-        Appointment appointment = appointmentService.findExistingAppointment(searchAppointmentRequest);
-        if (appointment == null) {
-            log.info("Creating a new appointment");
-            appointment = appointmentService.createAppointment(searchAppointmentRequest);
-        }
-
-        log.info("Appointment for this request: " + appointment);
 
         //Send request to notification service, get response back
+        NotificationResponse notificationResponse = notificationRestClient.sendAppointmentNotification(user, appointment);
+        if (!notificationResponse.getMessageAcceptedForDelivery()) {
+            //TODO: return a reasonable failure code here
+        }
 
-        //If response is successful, update appointment status
+        //NOTE: We'd want appointmentService to update the status through the repository class, doing this as shorthand
+        appointment.setAppointmentState(AppointmentState.NOTIFIED);
 
-        //return 200 (or appropriate response code)
-
-        return ResponseEntity.ok().body(CreateAppointmentResponse.builder().build());
+        return ResponseEntity.ok().body(CreateAppointmentResponse.builder()
+                .appointmentId(appointment.getId())
+                .appointmentStatus(appointment.getAppointmentState())
+                .build());
     }
 }

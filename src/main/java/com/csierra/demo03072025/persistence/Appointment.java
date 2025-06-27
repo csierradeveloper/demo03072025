@@ -1,13 +1,13 @@
-package com.csierra.demo03072025.appointment.model;
+package com.csierra.demo03072025.persistence;
 
 import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
 
 import java.time.OffsetDateTime;
 
-@Value
+@Data
 @Builder
-//TODO: this should correspond to a DB table, use persistence
+//TODO: this should be an entity corresponding to a DB table
 public class Appointment {
     String id;
     String userId;

@@ -1,18 +1,13 @@
 package com.csierra.demo03072025.externalclients.user.model;
 
 import lombok.Builder;
-import lombok.NonNull;
 import lombok.Value;
-
-import java.time.OffsetDateTime;
 
 @Value
 @Builder
-public class User {
-    @NonNull
-    String id;
+public class UserSearchRequest {
     String name;
-    OffsetDateTime dateOfBirth;
     String governmentId;
-    String emailAddress;
+
+    // insert other fields used to search for an existing user
 }

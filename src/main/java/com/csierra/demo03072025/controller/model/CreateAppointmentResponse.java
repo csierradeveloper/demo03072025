@@ -1,5 +1,6 @@
 package com.csierra.demo03072025.controller.model;
 
+import com.csierra.demo03072025.persistence.AppointmentState;
 import lombok.Builder;
 import lombok.Value;
 
@@ -7,7 +8,5 @@ import lombok.Value;
 @Builder
 public class CreateAppointmentResponse {
     String appointmentId;
-    //TODO: bother to convert to an enum?
-    String appointmentStatus;
-
+    AppointmentState appointmentStatus;
 }

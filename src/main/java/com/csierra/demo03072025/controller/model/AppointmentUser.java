@@ -13,5 +13,7 @@ public class AppointmentUser {
     String name;
     OffsetDateTime dateOfBirth;
     String governmentId;
+    @NonNull
+    String emailAddress;
     //other fields used to find the user or create if not already existing
 }

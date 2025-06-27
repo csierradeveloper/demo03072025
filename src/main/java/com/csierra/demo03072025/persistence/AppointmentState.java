@@ -1,4 +1,4 @@
-package com.csierra.demo03072025.appointment.model;
+package com.csierra.demo03072025.persistence;
 
 public enum AppointmentState {
     CREATED,

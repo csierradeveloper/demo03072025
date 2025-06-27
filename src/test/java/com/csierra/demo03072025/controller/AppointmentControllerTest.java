@@ -1,10 +1,9 @@
 package com.csierra.demo03072025.controller;
 
-import com.csierra.demo03072025.appointment.AppointmentService;
-import com.csierra.demo03072025.appointment.model.SearchAppointmentRequest;
+import com.csierra.demo03072025.service.AppointmentService;
 import com.csierra.demo03072025.controller.model.AppointmentUser;
 import com.csierra.demo03072025.controller.model.CreateAppointmentRequest;
-import com.csierra.demo03072025.externalclients.user.UserRestClient;
+import com.csierra.demo03072025.service.UserService;
 import com.csierra.demo03072025.externalclients.user.model.User;
 import com.csierra.demo03072025.validation.CreateAppointmentRequestValidator;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ class AppointmentControllerTest {
     @Mock
     CreateAppointmentRequestValidator validator;
     @Mock
-    UserRestClient userRestClient;
+    UserService userService;
     @Mock
     AppointmentService appointmentService;
 
@@ -47,17 +46,11 @@ class AppointmentControllerTest {
 
     private CreateAppointmentRequest buildAppointmentRequest() {
         return CreateAppointmentRequest.builder()
-                .user(buildAppointmentUser())
+                .user(appointmentUser)
                 .propertyId(PROPERTY_ID)
                 .agentId(AGENT_ID)
                 .officeId(OFFICE_ID)
                 .appointmentTime(appointmentTime)
-                .build();
-    }
-
-    private AppointmentUser buildAppointmentUser() {
-        return AppointmentUser.builder()
-                .name("blah")
                 .build();
     }
 
@@ -70,18 +63,15 @@ class AppointmentControllerTest {
 
     @Test
     void testCreateAppointment_failureInUserCreation() {
-        when(userRestClient.findMatchingUser(any())).thenReturn(null);
-        when(userRestClient.createUser(any())).thenThrow(new RuntimeException());
+        when(userService.getUser(any())).thenThrow(new RuntimeException());
 
         assertThrows(RuntimeException.class, () -> appointmentController.createAppointment(buildAppointmentRequest()));
     }
 
     @Test
     void testCreateAppointment_failureInAppointmentCreation() {
-        when(userRestClient.findMatchingUser(any())).thenReturn(null);
-        when(userRestClient.createUser(any())).thenReturn(user);
-        when(appointmentService.findExistingAppointment(any())).thenReturn(null);
-        when(appointmentService.createAppointment(any())).thenThrow(new RuntimeException());
+        when(userService.getUser(any())).thenReturn(user);
+        when(appointmentService.getAppointment(any(), any())).thenThrow(new RuntimeException());
 
         assertThrows(RuntimeException.class, () -> appointmentController.createAppointment(buildAppointmentRequest()));
     }
