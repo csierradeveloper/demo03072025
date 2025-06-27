@@ -1,9 +1,9 @@
-package com.csierra.demo03072025.controller.model;
+package com.csierra.demo03072025.appointment.model;
 
 import lombok.Builder;
 import lombok.Value;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Value
 @Builder
@@ -12,8 +12,8 @@ public class Appointment {
     String id;
     String userId;
     String propertyId;
-    LocalDateTime appointmentTime;
+    OffsetDateTime appointmentTime;
     String officeId;
     String agentId;
-    AppointmentStatus appointmentStatus;
+    AppointmentState appointmentState;
 }

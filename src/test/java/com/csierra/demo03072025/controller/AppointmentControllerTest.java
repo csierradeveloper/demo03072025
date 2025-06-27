@@ -1,5 +1,7 @@
 package com.csierra.demo03072025.controller;
 
+import com.csierra.demo03072025.appointment.AppointmentService;
+import com.csierra.demo03072025.appointment.model.SearchAppointmentRequest;
 import com.csierra.demo03072025.controller.model.AppointmentUser;
 import com.csierra.demo03072025.controller.model.CreateAppointmentRequest;
 import com.csierra.demo03072025.externalclients.user.UserRestClient;
@@ -37,6 +39,8 @@ class AppointmentControllerTest {
     CreateAppointmentRequestValidator validator;
     @Mock
     UserRestClient userRestClient;
+    @Mock
+    AppointmentService appointmentService;
 
     @InjectMocks
     AppointmentController appointmentController;
@@ -72,11 +76,15 @@ class AppointmentControllerTest {
         assertThrows(RuntimeException.class, () -> appointmentController.createAppointment(buildAppointmentRequest()));
     }
 
-    private User buildUser() {
-        return User.builder()
-                .id("userId")
-                .name("name")
-                .build();
+    @Test
+    void testCreateAppointment_failureInAppointmentCreation() {
+        when(userRestClient.findMatchingUser(any())).thenReturn(null);
+        when(userRestClient.createUser(any())).thenReturn(user);
+        when(appointmentService.findExistingAppointment(any())).thenReturn(null);
+        when(appointmentService.createAppointment(any())).thenThrow(new RuntimeException());
+
+        assertThrows(RuntimeException.class, () -> appointmentController.createAppointment(buildAppointmentRequest()));
     }
+
 
 }
