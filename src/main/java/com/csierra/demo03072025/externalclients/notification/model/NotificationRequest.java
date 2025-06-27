@@ -11,6 +11,6 @@ public class NotificationRequest {
     //TODO: should we allow for more general delivery mechanisms?
     String recipientEmail;
     String messageTemplateName;
-    //Additional information used to populate the specified message template
+    //Additional information used to populate the specified message template, Appointment in our case
     Map<String, Object> metadata;
 }

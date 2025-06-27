@@ -18,7 +18,6 @@ public class AppointmentService {
     AppointmentRepository appointmentRepository;
 
     public Appointment getAppointment(User user, CreateAppointmentRequest createAppointmentRequest) {
-
         AppointmentRequest appointmentRequest = buildAppointmentRequest(user, createAppointmentRequest);
         Appointment appointment = appointmentRepository.findExistingAppointment(appointmentRequest);
         if (Objects.isNull(appointment)) {

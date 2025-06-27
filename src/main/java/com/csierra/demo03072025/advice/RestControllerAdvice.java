@@ -24,5 +24,27 @@ public class RestControllerAdvice extends ResponseEntityExceptionHandler {
                 new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
+    @ExceptionHandler({
+            IllegalStateException.class
+    })
+    ResponseEntity<Object> handleIllegalState(RuntimeException ex, WebRequest request) {
+        log.error("Exception: " + ex.toString());
+        log.error("Request: " + request.toString());
+        String bodyOfResponse = ex.getMessage();
+        return super.handleExceptionInternal(ex, bodyOfResponse,
+                new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE, request);
+    }
+
+    @ExceptionHandler({
+            InternalError.class
+    })
+    ResponseEntity<Object> handleInternalError(RuntimeException ex, WebRequest request) {
+        log.error("Exception: " + ex.toString());
+        log.error("Request: " + request.toString());
+        String bodyOfResponse = "Internal error: " + ex.getMessage();
+        return super.handleExceptionInternal(ex, bodyOfResponse,
+                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
     //TODO: additional handlers as necessary
 }
