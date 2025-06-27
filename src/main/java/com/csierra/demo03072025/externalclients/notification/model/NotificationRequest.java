@@ -8,7 +8,7 @@ import java.util.Map;
 @Value
 @Builder
 public class NotificationRequest {
-    //TODO: should we allow for more general delivery mechanisms?
+    //Note: we might want to allow for more general delivery mechanisms, keeping this simple as that is outside the scope of this project
     String recipientEmail;
     String messageTemplateName;
     //Additional information used to populate the specified message template, Appointment in our case

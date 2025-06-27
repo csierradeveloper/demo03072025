@@ -45,6 +45,4 @@ public class RestControllerAdvice extends ResponseEntityExceptionHandler {
         return super.handleExceptionInternal(ex, bodyOfResponse,
                 new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
-
-    //TODO: additional handlers as necessary
 }

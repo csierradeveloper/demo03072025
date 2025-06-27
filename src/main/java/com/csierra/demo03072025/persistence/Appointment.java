@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
 
 @Data
 @Builder
-//TODO: this should be an entity corresponding to a DB table
+//This would be an entity corresponding to a DB table, actually creating would be outside the scope of this project
 public class Appointment {
     String id;
     String userId;

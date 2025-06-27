@@ -6,6 +6,6 @@ import lombok.Value;
 @Value
 @Builder
 public class Employee {
-    //TODO: sketch in basic attributes?
     String id;
+    // other attributes would go here
 }

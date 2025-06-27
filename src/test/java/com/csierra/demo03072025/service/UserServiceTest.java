@@ -4,6 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
 
-    //TODO: unit tests for UserService
+    //unit tests would go here
 
 }

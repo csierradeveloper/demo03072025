@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class CreateAppointmentRequestValidator {
@@ -24,41 +26,46 @@ public class CreateAppointmentRequestValidator {
     @Autowired
     private OfficeServiceRestClient officeServiceRestClient;
 
-    //TODO: instead of throwing at first missing field, check all and return a list of errors
     public void validateRequest(CreateAppointmentRequest createAppointmentRequest) {
-        validatePropertyExists(createAppointmentRequest.getPropertyId());
-        validateEmployeeExists(createAppointmentRequest.getAgentId());
-        validateOfficeExists(createAppointmentRequest.getOfficeId());
-        validateAppointmentInFuture(createAppointmentRequest.getAppointmentTime());
+        Map<String, String> errors = new HashMap<>();
+
+        validatePropertyExists(createAppointmentRequest.getPropertyId(), errors);
+        validateEmployeeExists(createAppointmentRequest.getAgentId(), errors);
+        validateOfficeExists(createAppointmentRequest.getOfficeId(), errors);
+        validateAppointmentInFuture(createAppointmentRequest.getAppointmentTime(), errors);
+
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(errors.toString());
+        }
     }
 
-    private void validatePropertyExists(String propertyId) {
+    private void validatePropertyExists(String propertyId, Map<String, String> errors) {
         ResponseEntity<Property> propertySearchResponse = propertyServiceRestClient.getProperty(propertyId);
 
         if (!propertySearchResponse.getStatusCode().is2xxSuccessful()) {
-            throw new IllegalArgumentException("provided propertyId does not correspond to an existing insurable property");
+            errors.put("propertyId", "provided propertyId does not correspond to an existing insurable property");
         }
     }
 
-    private void validateEmployeeExists(String employeeId) {
+    private void validateEmployeeExists(String employeeId, Map<String, String> errors) {
         ResponseEntity<Employee> employeeSearchResponse = employeeServiceRestClient.getEmployee(employeeId);
 
         if (!employeeSearchResponse.getStatusCode().is2xxSuccessful()) {
-            throw new IllegalArgumentException("provided employeeId does not correspond to an existing employee to serve as insurance agent");
+            errors.put("employeeId", "provided employeeId does not correspond to a valid employee to serve as insurance agent");
         }
     }
 
-    private void validateOfficeExists(String officeId) {
+    private void validateOfficeExists(String officeId, Map<String, String> errors) {
         ResponseEntity<Office> officeSearchResponse = officeServiceRestClient.getOffice(officeId);
 
         if (!officeSearchResponse.getStatusCode().is2xxSuccessful()) {
-            throw new IllegalArgumentException("provided officeId does not correspond to an existing location for the appointment to take place in");
+            errors.put("officeId", "provided officeId does not correspond to an existing location for the appointment to take place in");
         }
     }
 
-    private void validateAppointmentInFuture(OffsetDateTime appointmentTime) {
-        if (appointmentTime.isAfter(OffsetDateTime.now())) {
-            throw new IllegalArgumentException("provided appointment time is in the past, cannot create retroactive appointments");
+    private void validateAppointmentInFuture(OffsetDateTime appointmentTime, Map<String, String> errors) {
+        if (appointmentTime.isBefore(OffsetDateTime.now())) {
+            errors.put("appointmentTime", "provided appointment time is in the past, cannot create retroactive appointments");
         }
     }
 }
