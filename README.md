@@ -13,7 +13,7 @@ The application is divided into a Controller (AppointmentController) which conta
 
 Based on the assignment description, I would approach this problem of appointment-booking with this being an AppointmentService RESTful microservice, with ownership over the domain of Appointments. Therefore responsibility for the persistence and fetching of information about Appointments would reside with this microservice. If we wish to make this a pure integration layer then we would just replace AppointmentRepository (and its mocked database interactions) with another REST client, AppointmentServiceRestClient, and leave the data persistence to a dedicated microservice.
 
-An Appointment is defined as a relationship between a User (client, someone who wants to purchase insurance), a specific Property (an object which the User wants to insure, such as a car), a date and time on which the appointment is expected to take place, an Employee who will meet with the User, and an AppointmentState (indicating if the appointment has been freshly created, if the user has been notified of it, if the user has confirmed it, or if the appointment is completed). The specified business logic only provided for User and Appointment creation, but in a real case we'd want to validate the rest of the request data as well, and handle the case of pre-existing users or an incomplete Appointment (instead of creating duplicates).
+An Appointment is defined as a relationship between a User (client, someone who wants to purchase insurance), a specific Property (an object which the User wants to insure, such as a car), a date and time on which the appointment is expected to take place, an Employee who will meet with the User (serving as an insurance agent), and an AppointmentState (indicating if the appointment has been freshly created, if the user has been notified of it, if the user has confirmed it, or if the appointment is completed). The specified business logic only provided for User and Appointment creation, but in a real case we'd want to validate the rest of the request data as well, and handle the case of pre-existing users or an incomplete Appointment (instead of creating duplicates).
 
 Business logic is, upon receipt of a request to create an appointment:
 
@@ -28,7 +28,7 @@ Business logic is, upon receipt of a request to create an appointment:
 
 This is a standard gradle Spring Boot application. For local testing I have been running it within Intellij Idea, but it can also be run through the command line with `$ ./gradlew bootRun`. Application was written using Java 17.
 
-For testing the endpoint I used Postman, but curl or other forms of sending messages to a local endpoint `POST localhost:8080/appointment/create` can also be used.
+For testing the endpoint I used Postman, but curl or other forms of sending messages to a local endpoint `POST localhost:8080/appointment/create` can also be used. Only the appointmentId and appointmentState are expected in the response body, the rest can be observed from logs.
 
 ### Sample payload:
 
@@ -49,16 +49,16 @@ For testing the endpoint I used Postman, but curl or other forms of sending mess
 
 - `propertyId`, `officeId`, or `agentId` with value of "1" will succeed, values other than "1" will fail validation (to show what that looks like). `appointmentTime` set in the past will fail validation.
 - `user.name` will "find" an existing user if its value is `CREATED` or `NOTIFIED`, otherwise will "create" a new user with the information provided.
-- `user.name` values of `CREATED` and `NOTIFIED` will also lead to "finding" an existing Appointment with the matching AppointmentState. This is to show that pre-existing Appointments in state Created will continue through the flow (to allow completion of interrupted requests), and those in other states (such as NOTIFIED) will fail as an invalid request.
-- No means is provided for testing failures in NotificationService, though that can be added if desired.
+- `user.name` values of `CREATED` and `NOTIFIED` will also lead to "finding" an existing Appointment with the matching AppointmentState. This is to show that pre-existing Appointments in state `CREATED` will continue through the flow (to allow completion of interrupted requests), and those in other states (such as NOTIFIED) will fail as an invalid request.
+- No means is provided for simulating failures in NotificationService, though that can be added if desired.
 
 ## Future Work
 
 An attempt was made to keep the scope of this work within control, but there is much more to do to fully sketch in a RESTful microservice fulfilling the function described in the assignment. Future work would focus on the following:
 
-- Sketch in an integration with a request/token validation service using REST interceptors. We want to make sure that Appointments can only be made by trusted systems/users
-- Sketch in integration testing in a separate module, allowing for requests to the app's endpoint and testing endpoints to confirm the results of calls made. Not my area of expertise, but it would be good to indicate where those would go.
-- Sketch in integration with deployment pipelines and business environments. This is more open-ended depending on what is used within your company; in my experience this is usually Jenkins build pipelines, service deployed to Docker containers managed by Kubernetes, integration with a cloud services provider such as AWS, infrastructure defined by an infrastructure-as-code solution such as Terraform, etc.
+- Sketch in an integration with a request/token validation service using REST interceptors. We want to make sure that Appointments can only be made by trusted systems/users.
+- Sketch in integration testing in a separate module, allowing for requests to the app's endpoint and testing endpoints to confirm the results of calls made. Would want this to confirm happy-path behavior matches expectations.
+- Sketch in integration with deployment pipelines and business environments. This is more open-ended depending on what is used within your company; in my experience this is usually Jenkins pipelines, service deployed to Docker containers managed by Kubernetes, integration with a cloud services provider such as AWS, infrastructure defined by an infrastructure-as-code solution such as Terraform, etc.
 
 ## Parting Thoughts
 
