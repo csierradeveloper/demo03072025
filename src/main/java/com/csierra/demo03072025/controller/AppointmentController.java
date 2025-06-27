@@ -31,7 +31,6 @@ class AppointmentController {
     @Autowired
     private NotificationService notificationService;
 
-    //TODO: should be a post, or a put?
     @PostMapping("/appointment/create")
     ResponseEntity<CreateAppointmentResponse> createAppointment(@RequestBody CreateAppointmentRequest createAppointmentRequest) {
 
@@ -52,8 +51,8 @@ class AppointmentController {
             throw new IllegalStateException("Appointment already exists and user has already been notified");
         }
 
-        //Attempt to deliver notification to client, report result if request fails
         if (!notificationService.sendAppointmentNotification(user, appointment)) {
+            log.info("Failed to deliver notification, exiting with the appointment state left un-notified");
             throw new InternalError("Unable to deliver notification");
         }
 

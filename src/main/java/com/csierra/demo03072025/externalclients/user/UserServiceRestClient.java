@@ -18,7 +18,6 @@ import static com.csierra.demo03072025.persistence.AppointmentState.NOTIFIED;
 @Slf4j
 public class UserServiceRestClient {
 
-    //TODO: POST best verb to use here?
     // Equivalent to POST userServiceBaseUrl/user/search
     public ResponseEntity<User> findUser(UserSearchRequest searchRequest) {
         if (Set.of(CREATED.toString(), NOTIFIED.toString()).contains(searchRequest.getName().toUpperCase())) {

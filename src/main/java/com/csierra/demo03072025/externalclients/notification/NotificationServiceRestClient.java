@@ -1,4 +1,5 @@
-package com.csierra.demo03072025.externalclients.notification;
+package
+com.csierra.demo03072025.externalclients.notification;
 
 import com.csierra.demo03072025.externalclients.notification.model.NotificationRequest;
 import com.csierra.demo03072025.externalclients.notification.model.NotificationResponse;

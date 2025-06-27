@@ -76,5 +76,4 @@ class AppointmentControllerTest {
         assertThrows(RuntimeException.class, () -> appointmentController.createAppointment(buildAppointmentRequest()));
     }
 
-
 }

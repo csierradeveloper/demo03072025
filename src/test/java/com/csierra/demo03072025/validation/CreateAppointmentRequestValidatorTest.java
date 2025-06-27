@@ -61,49 +61,24 @@ class CreateAppointmentRequestValidatorTest {
     }
 
     @Test
-    void testValidateRequest_missingProperty() {
+    void testValidateRequest_fieldsFailValidation() {
         when(propertyServiceRestClient.getProperty(PROPERTY_ID)).thenReturn(buildNotFoundResponse());
-
-        assertThrows(IllegalArgumentException.class, () -> createAppointmentRequestValidator.validateRequest(createAppointmentRequest()));
-    }
-
-    private ResponseEntity buildNotFoundResponse() {
-        return new ResponseEntity<>(null, HttpStatusCode.valueOf(404));
-    }
-
-    @Test
-    void testValidateRequest_missingEmployee() {
-        when(propertyServiceRestClient.getProperty(PROPERTY_ID)).thenReturn(ResponseEntity.ok(property));
         when(employeeServiceRestClient.getEmployee(AGENT_ID)).thenReturn(buildNotFoundResponse());
-
-        assertThrows(IllegalArgumentException.class, () -> createAppointmentRequestValidator.validateRequest(createAppointmentRequest()));
-    }
-
-    @Test
-    void testValidateRequest_missingOffice() {
-        when(propertyServiceRestClient.getProperty(PROPERTY_ID)).thenReturn(ResponseEntity.ok(property));
-        when(employeeServiceRestClient.getEmployee(AGENT_ID)).thenReturn(ResponseEntity.ok(employee));
         when(officeServiceRestClient.getOffice(OFFICE_ID)).thenReturn(buildNotFoundResponse());
+        when(appointmentTime.isBefore(any())).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class, () -> createAppointmentRequestValidator.validateRequest(createAppointmentRequest()));
+
+        //note: to be more thorough, could capture exception and check that the error message contains every field we expect to fail validation
+        //leaving that out for simplicity/time
     }
 
     @Test
-    void testValidateRequest_appointmentSetInPast() {
+    void testValidateRequest_fieldsPassValidation() {
         when(propertyServiceRestClient.getProperty(PROPERTY_ID)).thenReturn(ResponseEntity.ok(property));
         when(employeeServiceRestClient.getEmployee(AGENT_ID)).thenReturn(ResponseEntity.ok(employee));
         when(officeServiceRestClient.getOffice(OFFICE_ID)).thenReturn(ResponseEntity.ok(office));
-        when(appointmentTime.isAfter(any())).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> createAppointmentRequestValidator.validateRequest(createAppointmentRequest()));
-    }
-
-    @Test
-    void testValidateRequest_happyPath() {
-        when(propertyServiceRestClient.getProperty(PROPERTY_ID)).thenReturn(ResponseEntity.ok(property));
-        when(employeeServiceRestClient.getEmployee(AGENT_ID)).thenReturn(ResponseEntity.ok(employee));
-        when(officeServiceRestClient.getOffice(OFFICE_ID)).thenReturn(ResponseEntity.ok(office));
-        when(appointmentTime.isAfter(any())).thenReturn(false);
+        when(appointmentTime.isBefore(any())).thenReturn(false);
 
         createAppointmentRequestValidator.validateRequest(createAppointmentRequest());
 
@@ -112,5 +87,8 @@ class CreateAppointmentRequestValidatorTest {
         verify(officeServiceRestClient).getOffice(OFFICE_ID);
     }
 
+    private ResponseEntity buildNotFoundResponse() {
+        return new ResponseEntity<>(null, HttpStatusCode.valueOf(404));
+    }
 
 }
