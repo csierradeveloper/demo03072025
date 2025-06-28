@@ -17,6 +17,11 @@ public class NotificationService {
     @Autowired
     NotificationServiceRestClient notificationServiceRestClient;
 
+    /**
+     * We are assuming that a RESTful Notifications system exists which takes a recipient, a message template (identified
+     * by a String here, in reality it'd be a list of Enums provided by the NotificationServiceRestClient), and template-specific
+     * metadata used to populate the message. We return information about whether the notification system accepted the message.
+     */
     public boolean sendAppointmentNotification(User user, Appointment appointment) {
         NotificationRequest notificationRequest = NotificationRequest.builder()
                 .recipientEmail(user.getEmailAddress())

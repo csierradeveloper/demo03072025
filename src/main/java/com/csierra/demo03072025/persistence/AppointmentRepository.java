@@ -38,7 +38,7 @@ public class AppointmentRepository /* extends JpaRepository<Appointment, Long> *
                 .build();
     }
 
-    public Appointment createAppointment(AppointmentRequest request) {
+    public Appointment createNewAppointment(AppointmentRequest request) {
         return buildAppointment(request, CREATED);
     }
 }

@@ -17,6 +17,10 @@ public class UserService {
     @Autowired
     UserServiceRestClient userClient;
 
+    /**
+     * Searches for an existing user matching the provided appointmentUser information. If no matching user is found,
+     * a new one is created.
+     */
     public User getUser(AppointmentUser appointmentUser) {
 
         UserSearchRequest searchRequest = UserSearchRequest.builder()

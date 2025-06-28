@@ -12,13 +12,11 @@ import com.csierra.demo03072025.validation.CreateAppointmentRequestValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Service
 @Slf4j
 class AppointmentController {
 
@@ -37,7 +35,6 @@ class AppointmentController {
         log.debug("Received createAppointmentRequest: " + createAppointmentRequest);
 
         createAppointmentRequestValidator.validateRequest(createAppointmentRequest);
-
         log.debug("Request passed validation");
 
         User user = userService.getUser(createAppointmentRequest.getUser());
@@ -47,7 +44,7 @@ class AppointmentController {
         log.debug("Appointment for this request: " + appointment);
 
         if (!appointment.getAppointmentState().equals(AppointmentState.CREATED)) {
-            log.debug("Appointment already exists and is not in a state to need further notification, returning early");
+            log.info("Appointment already exists and is not in a state to need further notification, returning early");
             throw new IllegalStateException("Appointment already exists and user has already been notified");
         }
 
@@ -56,8 +53,8 @@ class AppointmentController {
             throw new InternalError("Unable to deliver notification");
         }
 
-        //NOTE: We'd want appointmentService to update the status through the repository class, doing this as shorthand
         appointment.setAppointmentState(AppointmentState.NOTIFIED);
+        appointment = appointmentService.updateAppointment(appointment);
 
         return ResponseEntity.ok().body(CreateAppointmentResponse.builder()
                 .appointmentId(appointment.getId())

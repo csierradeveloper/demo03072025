@@ -26,6 +26,11 @@ public class CreateAppointmentRequestValidator {
     @Autowired
     private OfficeServiceRestClient officeServiceRestClient;
 
+    /**
+     * Validates that a CreateAppointmentRequest has all required fields and validates those fields. If any fields fail
+     * validation, throws an IllegalArgumentException. For fields corresponding to object IDs in other systems, confirms
+     * that those other systems have an object matching that ID. For appointmentTime, confirms that it is in the future.
+     */
     public void validateRequest(CreateAppointmentRequest createAppointmentRequest) {
         Map<String, String> errors = new HashMap<>();
 
